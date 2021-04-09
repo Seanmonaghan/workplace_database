@@ -1,0 +1,24 @@
+{
+  "name": "homework_database",
+  "version": "1.0.0",
+  "description": "Database management for your company",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Seanmonaghan/workplace_database.git"
+  },
+  "author": "Sean Monaghan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Seanmonaghan/workplace_database/issues"
+  },
+  "homepage": "https://github.com/Seanmonaghan/workplace_database#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^8.0.0",
+    "mysql": "^2.18.1"
+  }
+}

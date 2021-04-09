@@ -5,27 +5,27 @@ CREATE DATABASE cms;
 USE cms;
 
 CREATE TABLE department(
-id INTEGER NOT NULL,
+department_id INTEGER auto_increment NOT NULL,
 name VARCHAR(30),
-PRIMARY KEY (id)
+PRIMARY KEY (department_id)
 );
 
 CREATE TABLE role(
-id INTEGER NOT NULL,
+role_id INTEGER auto_increment NOT NULL,
 title VARCHAR(30),
 salary DECIMAL(10,2),
 department_ID INTEGER,
-PRIMARY KEY (id),
-FOREIGN KEY (department_ID) REFERENCES department(id)
+PRIMARY KEY (role_id),
+FOREIGN KEY (department_ID) REFERENCES department(department_id)
 );
 
 CREATE TABLE employee(
-id INTEGER NOT NULL,
+employee_id INTEGER auto_increment NOT NULL,
 first_name VARCHAR(30),
 last_name VARCHAR(30),
 role_id INTEGER NOT NULL,
 manager_id INTEGER,
-PRIMARY KEY(id),
-FOREIGN KEY(role_id) REFERENCES role(id),
-FOREIGN KEY(manager_id) REFERENCES employee(id)
+PRIMARY KEY(employee_id),
+FOREIGN KEY(role_id) REFERENCES role(role_id),
+FOREIGN KEY(manager_id) REFERENCES employee(employee_id)
 );

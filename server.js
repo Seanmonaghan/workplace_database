@@ -36,7 +36,7 @@ const viewRoles = () => {
 };
 
 const viewEmployees = () => {
-  connection.query('SELECT employee.employee_id, employee.first_name, employee.last_name, employee.manager_id, employee.role_id, role.salary, role.title, role.role_id FROM employee INNER JOIN role ON employee.role_id = role.role_id;',
+  connection.query('SELECT employee.employee_id, employee.first_name, employee.last_name, department.department_name, employee.manager_id, employee.role_id, role.salary, role.title, role.role_id FROM employee INNER JOIN role ON employee.role_id = role.role_id INNER JOIN department ON role.department_id = department.department_id',
     (err, results) => {
       if (err) throw err;
       const table = cTable.getTable(results)

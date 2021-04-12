@@ -278,13 +278,48 @@ const deleteRole = () => {
 }
 
 const deleteEmployee = () => {
-
+  connection.query('SELECT * FROM employee', (err, results) => {
+    if (err) throw err;
+    inquirer
+      .prompt([
+        {
+          name: 'choice',
+          type: 'rawlist',
+          choices() {
+            const choicesArray = [];
+            results.forEach(({
+              last_name
+            }) => {
+              choicesArray.push(last_name)
+            });
+            return choicesArray;
+          },
+          message: "Which employee do you want to delete?"
+        }
+      ])
+      .then((answer) => {
+        console.log(answer);
+        let chosenEmployee;
+        results.forEach((employee) => {
+          if (employee.last_name === answer.choice) {
+            chosenEmployee = employee.last_name;
+          };
+        })
+        
+        connection.query(
+          'DELETE FROM employee WHERE ?', 
+          {
+            last_name: chosenEmployee
+          },
+          (err) => {
+            if (err) throw err;
+            console.log(`${chosenEmployee} was deleted successfully`)
+            start();
+          }
+        )
+      })
+  })
 }
-
-
-
-
-
 
 
 const start = () => {

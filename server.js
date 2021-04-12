@@ -181,7 +181,55 @@ const addRole = () => {
 // Update Functions
 
 const updateRole = () => {
-
+  connection.query('SELECT employee.employee_id, employee.first_name, employee.last_name, department.department_name, employee.manager_id, employee.role_id, role.salary, role.title, role.role_id FROM employee INNER JOIN role ON employee.role_id = role.role_id INNER JOIN department ON role.department_id = department.department_id',
+    (err, results) => {
+      if (err) throw err;
+      inquirer
+      .prompt([
+        {
+          name: 'updatedEmployee',
+          type: 'rawlist',
+          choices() {
+            const choicesArray = [];
+            results.forEach(({
+              first_name
+            }) => {
+              choicesArray.push(first_name)
+            });
+            return choicesArray;
+          },
+          message: "Which employee would you like to update?"
+        },
+        {
+          name: 'newRole',
+          type: 'rawlist',
+          choices() {
+            const choicesArray = [];
+            results.forEach(({
+              role_id
+            }) => {
+              choicesArray.push(role_id)
+            });
+            return choicesArray;
+          },
+          message: "What would you like their new role to be?"
+        }
+      ])
+      .then((answer) => {
+        console.log(answer.updatedEmployee);
+        console.log(answer.newRole);
+        start();
+        connection.query(
+          'UPDATE employee SET role_id = ? WHERE first_name = ?',
+          [answer.newRole, answer.updatedEmployee],
+          (error) => {
+            if (error) throw err;
+            console.log(`${answer.updatedEmployee}'s role has been updated to ${answer.newRole}`)
+          }
+        )
+      })
+      
+    });
 };
 
 const updateManager = () => {

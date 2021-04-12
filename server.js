@@ -20,19 +20,20 @@ const connection = mysql.createConnection({
 const viewDepartments = () => {
   connection.query('SELECT * FROM department', (err, results) => {
     if (err) throw err;
-    const table = cTable.getTable(results)
+    const table = cTable.getTable(results);
     console.log(table);
     start();
   })
 };
 
 const viewRoles = () => {
-  connection.query('SELECT department.department_id, department.department_name, role.role_id, role.title, role.salary, role.department_id FROM role LEFT JOIN department ON role.department_id = department.department_id', (err, results) => {
+  connection.query('SELECT role.role_id, role.title, role.salary, department.department_id, department.department_name, role.department_id FROM role LEFT JOIN department ON role.department_id = department.department_id',
+  (err, results) => {
     if (err) throw err;
     const table = cTable.getTable(results)
     console.log(table);
     start();
-  })
+  });
 };
 
 const viewEmployees = () => {
@@ -42,7 +43,7 @@ const viewEmployees = () => {
       const table = cTable.getTable(results)
       console.log(table);
       start();
-    })
+    });
 };
 
 // Add Functions
@@ -64,9 +65,9 @@ const addDepartment = () => {
           console.log("Your department has been added.")
           start();
         }
-      )
-    })
-}
+      );
+    });
+};
 
 const addRole = () => {
   connection.query('SELECT * FROM department', (err, results) => {
@@ -100,27 +101,27 @@ const addRole = () => {
       .then((answer) => {
         let chosenDepartment;
         results.forEach((department) => {
-          if (department.name === answer.choice) {
+          if (department.department_name === answer.choice) {
             chosenDepartment = department.department_id;
-          };
+          }
         })
-
+        console.log(chosenDepartment);
         connection.query(
           'INSERT INTO role SET ?', 
           {
             'title': answer.newRole,
             'salary': answer.salary,
-            'department_id': chosenDepartment
+            'department_id': chosenDepartment,
           },
           (err) => {
             if (err) throw err;
             console.log("Your role was created successfully")
             start();
           }
-        )
-      })
-  })
-}
+        );
+      });
+  });
+};
 
 // const addEmployee = () => {
 //   connection.query('SELECT * FROM role', (err, results) => {
@@ -181,11 +182,11 @@ const addRole = () => {
 
 const updateRole = () => {
 
-}
+};
 
 const updateManager = () => {
 
-}
+};
 
 // Delete Functions
 
@@ -216,7 +217,7 @@ const deleteDepartment = () => {
           if (department.name === answer.choice) {
             chosenDepartment = department.name;
           };
-        })
+        });
         
         connection.query(
           'DELETE FROM department WHERE ?', 
@@ -228,10 +229,10 @@ const deleteDepartment = () => {
             console.log("Your department was deleted successfully")
             start();
           }
-        )
-      })
-  })
-}
+        );
+      });
+  });
+};
 
 const deleteRole = () => {
   connection.query('SELECT * FROM role', (err, results) => {
@@ -272,10 +273,10 @@ const deleteRole = () => {
             console.log("Your role was deleted successfully")
             start();
           }
-        )
-      })
-  })
-}
+        );
+      });
+  });
+};
 
 const deleteEmployee = () => {
   connection.query('SELECT * FROM employee', (err, results) => {
@@ -304,7 +305,7 @@ const deleteEmployee = () => {
           if (employee.last_name === answer.choice) {
             chosenEmployee = employee.last_name;
           };
-        })
+        });
         
         connection.query(
           'DELETE FROM employee WHERE ?', 
@@ -316,9 +317,43 @@ const deleteEmployee = () => {
             console.log(`${chosenEmployee} was deleted successfully`)
             start();
           }
-        )
-      })
-  })
+        );
+      });
+  });
+};
+
+const quit = () => {
+  console.log("Thank you for using this program! Goodbye.");
+  connection.end();
+}
+
+const displayBanner = () => {
+  console.log(`
+
+  ███████╗███╗   ███╗██████╗ ██╗      ██████╗ ██╗   ██╗███████╗███████╗                       
+  ██╔════╝████╗ ████║██╔══██╗██║     ██╔═══██╗╚██╗ ██╔╝██╔════╝██╔════╝                       
+  █████╗  ██╔████╔██║██████╔╝██║     ██║   ██║ ╚████╔╝ █████╗  █████╗                         
+  ██╔══╝  ██║╚██╔╝██║██╔═══╝ ██║     ██║   ██║  ╚██╔╝  ██╔══╝  ██╔══╝                         
+  ███████╗██║ ╚═╝ ██║██║     ███████╗╚██████╔╝   ██║   ███████╗███████╗                       
+  ╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝ ╚═════╝    ╚═╝   ╚══════╝╚══════╝                       
+                                                                                              
+  ███╗   ███╗ █████╗ ███╗   ██╗ █████╗  ██████╗ ███████╗███╗   ███╗███████╗███╗   ██╗████████╗
+  ████╗ ████║██╔══██╗████╗  ██║██╔══██╗██╔════╝ ██╔════╝████╗ ████║██╔════╝████╗  ██║╚══██╔══╝
+  ██╔████╔██║███████║██╔██╗ ██║███████║██║  ███╗█████╗  ██╔████╔██║█████╗  ██╔██╗ ██║   ██║   
+  ██║╚██╔╝██║██╔══██║██║╚██╗██║██╔══██║██║   ██║██╔══╝  ██║╚██╔╝██║██╔══╝  ██║╚██╗██║   ██║   
+  ██║ ╚═╝ ██║██║  ██║██║ ╚████║██║  ██║╚██████╔╝███████╗██║ ╚═╝ ██║███████╗██║ ╚████║   ██║   
+  ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝   ╚═╝   
+                                                                                              
+  ███████╗██╗   ██╗███████╗████████╗███████╗███╗   ███╗                                       
+  ██╔════╝╚██╗ ██╔╝██╔════╝╚══██╔══╝██╔════╝████╗ ████║                                       
+  ███████╗ ╚████╔╝ ███████╗   ██║   █████╗  ██╔████╔██║                                       
+  ╚════██║  ╚██╔╝  ╚════██║   ██║   ██╔══╝  ██║╚██╔╝██║                                       
+  ███████║   ██║   ███████║   ██║   ███████╗██║ ╚═╝ ██║                                       
+  ╚══════╝   ╚═╝   ╚══════╝   ╚═╝   ╚══════╝╚═╝     ╚═╝                                       
+                                                                                                       
+                                                                
+                                                                                
+  `)
 }
 
 
@@ -326,7 +361,7 @@ const start = () => {
   inquirer
     .prompt({
       name: "firstChoice",
-      type: 'list',
+      type: 'rawlist',
       message: "What would you like to do?",
       choices: [
         'View all departments',
@@ -340,7 +375,8 @@ const start = () => {
         'Delete a department',
         'Delete a role',
         'Delete an employee',
-        'View a total utilized budget of a department'
+        'View a total utilized budget of a department',
+        'I am done for now'
       ]
     })
     .then((answer) => {
@@ -366,8 +402,10 @@ const start = () => {
         deleteRole();
       } else if (answer.firstChoice === "Delete an employee") {
         deleteEmployee();
+      } else {
+        quit();
       }
-    })
+    });
 };
 
 
@@ -375,6 +413,6 @@ const start = () => {
 connection.connect((err) => {
   if (err) throw err;
   // run the start function after the connection is made to prompt the user
-
+  displayBanner();
   start();
 });

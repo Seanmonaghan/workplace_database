@@ -4,9 +4,11 @@ CREATE DATABASE cms;
 
 USE cms;
 
+SET FOREIGN_KEY_CHECKS=0;
+
 CREATE TABLE department(
 department_id INTEGER auto_increment NOT NULL,
-name VARCHAR(30),
+department_name VARCHAR(30),
 PRIMARY KEY (department_id)
 );
 

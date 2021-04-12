@@ -27,7 +27,7 @@ const viewDepartments = () => {
 };
 
 const viewRoles = () => {
-  connection.query('SELECT * FROM role', (err, results) => {
+  connection.query('SELECT department.department_id, department.department_name, role.role_id, role.title, role.salary, role.department_id FROM role LEFT JOIN department ON role.department_id = department.department_id', (err, results) => {
     if (err) throw err;
     const table = cTable.getTable(results)
     console.log(table);
@@ -52,12 +52,12 @@ const addDepartment = () => {
     .prompt({
       name: 'newDepartment',
       type: "input",
-      question: "What is the name of the department you want to add?"
+      message: "What is the name of the department you want to add?"
     })
     .then((answer) => {
       connection.query(
         'INSERT INTO department SET ?', {
-          name: answer.newDepartment
+          department_name: answer.newDepartment
         },
         (err) => {
           if (err) throw err;
@@ -69,7 +69,7 @@ const addDepartment = () => {
 }
 
 const addRole = () => {
-  connection.query('SELECT * FROM role', (err, results) => {
+  connection.query('SELECT * FROM department', (err, results) => {
     if (err) throw err;
     inquirer
       .prompt([{
@@ -88,9 +88,9 @@ const addRole = () => {
           choices() {
             const choicesArray = [];
             results.forEach(({
-              name
+              department_name
             }) => {
-              choicesArray.push(name)
+              choicesArray.push(department_name)
             });
             return choicesArray;
           },
@@ -98,14 +98,13 @@ const addRole = () => {
         }
       ])
       .then((answer) => {
-        // console.log(answer);
         let chosenDepartment;
         results.forEach((department) => {
           if (department.name === answer.choice) {
             chosenDepartment = department.department_id;
           };
         })
-        
+
         connection.query(
           'INSERT INTO role SET ?', 
           {
@@ -185,6 +184,100 @@ const updateRole = () => {
 }
 
 const updateManager = () => {
+
+}
+
+// Delete Functions
+
+const deleteDepartment = () => {
+  connection.query('SELECT * FROM department', (err, results) => {
+    if (err) throw err;
+    inquirer
+      .prompt([
+        {
+          name: 'choice',
+          type: 'rawlist',
+          choices() {
+            const choicesArray = [];
+            results.forEach(({
+              name
+            }) => {
+              choicesArray.push(name)
+            });
+            return choicesArray;
+          },
+          message: "Which department do you want to delete?"
+        }
+      ])
+      .then((answer) => {
+        // console.log(answer);
+        let chosenDepartment;
+        results.forEach((department) => {
+          if (department.name === answer.choice) {
+            chosenDepartment = department.name;
+          };
+        })
+        
+        connection.query(
+          'DELETE FROM department WHERE ?', 
+          {
+            name: chosenDepartment
+          },
+          (err) => {
+            if (err) throw err;
+            console.log("Your department was deleted successfully")
+            start();
+          }
+        )
+      })
+  })
+}
+
+const deleteRole = () => {
+  connection.query('SELECT * FROM role', (err, results) => {
+    if (err) throw err;
+    inquirer
+      .prompt([
+        {
+          name: 'choice',
+          type: 'rawlist',
+          choices() {
+            const choicesArray = [];
+            results.forEach(({
+              title
+            }) => {
+              choicesArray.push(title)
+            });
+            return choicesArray;
+          },
+          message: "Which role do you want to delete?"
+        }
+      ])
+      .then((answer) => {
+        // console.log(answer);
+        let chosenRole;
+        results.forEach((role) => {
+          if (role.title === answer.choice) {
+            chosenRole = role.title;
+          };
+        })
+        
+        connection.query(
+          'DELETE FROM role WHERE ?', 
+          {
+            title: chosenRole
+          },
+          (err) => {
+            if (err) throw err;
+            console.log("Your role was deleted successfully")
+            start();
+          }
+        )
+      })
+  })
+}
+
+const deleteEmployee = () => {
 
 }
 

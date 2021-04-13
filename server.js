@@ -37,7 +37,7 @@ const viewRoles = () => {
 };
 
 const viewEmployees = () => {
-  connection.query('SELECT employee.employee_id, employee.first_name, employee.last_name, department.department_name, employee.manager_id, employee.role_id, role.salary, role.title, role.role_id FROM employee INNER JOIN role ON employee.role_id = role.role_id INNER JOIN department ON role.department_id = department.department_id',
+  connection.query('SELECT employee.employee_id, employee.first_name, employee.last_name, department.department_name, employee.manager_id, employee.role_id, role.salary, role.title, role.role_id, employee.manager_name FROM employee INNER JOIN role ON employee.role_id = role.role_id INNER JOIN department ON role.department_id = department.department_id',
     (err, results) => {
       if (err) throw err;
       const table = cTable.getTable(results)
@@ -71,6 +71,7 @@ const addDepartment = () => {
 
 const addRole = () => {
   connection.query('SELECT * FROM department', (err, results) => {
+    console.log(results)
     if (err) throw err;
     inquirer
       .prompt([{
@@ -86,6 +87,7 @@ const addRole = () => {
         {
           name: 'choice',
           type: 'rawlist',
+          message: "What is the department that this role is a part of?",
           choices() {
             const choicesArray = [];
             results.forEach(({
@@ -94,8 +96,7 @@ const addRole = () => {
               choicesArray.push(department_name)
             });
             return choicesArray;
-          },
-          message: "What is the department ID that this role is a part of?"
+          }
         }
       ])
       .then((answer) => {
@@ -105,7 +106,6 @@ const addRole = () => {
             chosenDepartment = department.department_id;
           }
         })
-        console.log(chosenDepartment);
         connection.query(
           'INSERT INTO role SET ?', 
           {
@@ -124,7 +124,7 @@ const addRole = () => {
 };
 
 const addEmployee = () => {
-  connection.query('SELECT employee.employee_id, employee.first_name, employee.last_name, department.department_name, employee.manager_id, employee.role_id, role.salary, role.title, role.role_id FROM employee INNER JOIN role ON employee.role_id = role.role_id INNER JOIN department ON role.department_id = department.department_id', 
+  connection.query('SELECT employee.employee_id, employee.first_name, employee.last_name, department.department_name, employee.manager_id, employee.role_id, role.salary, role.title, role.role_id FROM employee RIGHT JOIN role ON employee.role_id = role.role_id INNER JOIN department ON role.department_id = department.department_id', 
   (err, results) => {
     if (err) throw err;
     inquirer.prompt([
@@ -163,11 +163,9 @@ const addEmployee = () => {
       let chosenRole;
       results.forEach((role) => {
         if (role.title === answer.role) {
-          console.log(role.role_id);
           chosenRole = role.role_id;
         }
       })
-      console.log(chosenRole);
       connection.query(
         'INSERT INTO employee SET ?',
         {
@@ -177,7 +175,7 @@ const addEmployee = () => {
         }
       )
       if (answer.manager === 'yes') {
-        addManager();
+        addManager(answer.firstName);
       } else {
         start();
       }
@@ -186,7 +184,7 @@ const addEmployee = () => {
   )
 }
 
-const addManager = () => {
+const addManager = (currentEmployee) => {
   connection.query('SELECT * FROM employee', (err, results) => {
     if (err) throw err;
     inquirer.prompt({
@@ -199,7 +197,8 @@ const addManager = () => {
           first_name
         }) => {
           choicesArray.push(first_name)
-        });
+        })
+        return choicesArray;
       }
     })
     .then((answer) => {
@@ -209,14 +208,23 @@ const addManager = () => {
           chosenManager = employee.employee_id
         }
       })
-    })
-    connection.query(
-      'INSERT INTO employee SET ?', 
-      {
-        'manager_id' : chosenManager
-      }
-    )
-    start();
+      console.log(chosenManager);
+      console.log(currentEmployee);
+      connection.query(
+        'UPDATE employee SET manager_id = ? WHERE first_name = ?',
+        [chosenManager, currentEmployee],
+        (error) => {
+          if (error) throw err;
+        }
+      )
+      connection.query(
+        'UPDATE employee SET manager_name = ? WHERE first_name = ?',
+        [answer.manager, currentEmployee],
+        (error) => {
+          if (error) throw err;
+        })
+      start();
+    }) 
   })
 
 }
@@ -227,7 +235,6 @@ const updateRole = () => {
   connection.query('SELECT role.role_id, employee.first_name, role.title FROM role LEFT JOIN employee ON role.role_id = employee.role_id',
     (err, results) => {
       if (err) throw err;
-      console.log(results);
       inquirer
       .prompt([
         {
@@ -283,7 +290,29 @@ const updateRole = () => {
 };
 
 const updateManager = () => {
-
+  connection.query('SELECT * FROM employee', (err, results) => {
+    if (err) throw err;
+  inquirer.prompt(
+    {
+      name: 'updatedEmployee',
+      type: 'rawlist',
+      message: 'What is the name of the employee you want to update?',
+      choices() {
+        const choicesArray = [];
+        results.forEach(({
+          first_name
+        }) => {
+          choicesArray.push(first_name)
+        });
+        return choicesArray;
+      } 
+    })
+    .then((answer) => {
+      addManager(answer.updatedEmployee);
+    })
+    
+      
+  })
 };
 
 // Delete Functions
@@ -309,7 +338,6 @@ const deleteDepartment = () => {
         }
       ])
       .then((answer) => {
-        // console.log(answer);
         let chosenDepartment;
         results.forEach((department) => {
           if (department.department_name === answer.choice) {
@@ -353,7 +381,6 @@ const deleteRole = () => {
         }
       ])
       .then((answer) => {
-        // console.log(answer);
         let chosenRole;
         results.forEach((role) => {
           if (role.title === answer.choice) {
@@ -397,7 +424,6 @@ const deleteEmployee = () => {
         }
       ])
       .then((answer) => {
-        console.log(answer);
         let chosenEmployee;
         results.forEach((employee) => {
           if (employee.last_name === answer.choice) {
@@ -420,10 +446,20 @@ const deleteEmployee = () => {
   });
 };
 
+// 
+
+const findTotalBudget = () => {
+  console.log("Work In Progress");
+}
+
+// Function to exit out of the application
+
 const quit = () => {
   console.log("Thank you for using this program! Goodbye.");
   connection.end();
 }
+
+// On start begin application and display banner
 
 const displayBanner = () => {
   console.log(`
@@ -455,7 +491,6 @@ const displayBanner = () => {
                                                                                 
   `)
 }
-
 
 const start = () => {
   inquirer
@@ -502,12 +537,13 @@ const start = () => {
         deleteRole();
       } else if (answer.firstChoice === "Delete an employee") {
         deleteEmployee();
+      } else if (answer.firstChoice === "View a total utilized budget of a department") {
+        findTotalBudget();
       } else {
         quit();
       }
     });
 };
-
 
 // connect to the mysql server and sql database
 connection.connect((err) => {

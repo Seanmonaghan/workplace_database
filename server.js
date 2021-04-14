@@ -449,6 +449,7 @@ const deleteEmployee = () => {
 
 const findTotalBudget = () => {
   console.log("Work In Progress");
+  
 }
 
 // Function to exit out of the application

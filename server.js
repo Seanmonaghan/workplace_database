@@ -510,7 +510,7 @@ const start = () => {
         'Delete a department',
         'Delete a role',
         'Delete an employee',
-        'View a total utilized budget of a department',
+        // 'View a total utilized budget of a department',
         'I am done for now'
       ]
     })
